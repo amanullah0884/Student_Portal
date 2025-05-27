@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Student_Portal.Model;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +21,20 @@ builder.Services.AddCors(p => {
                                     .AllowAnyMethod());
 
 
+});
+builder.Services.AddControllers(options =>
+{
+    options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
+    options.OutputFormatters.Add(new SystemTextJsonOutputFormatter
+            (new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                //ContractResolver=new CamelCasePropertyNamesContractResolver()
+                PropertyNameCaseInsensitive = false,
+                PropertyNamingPolicy = null,
+                WriteIndented = true,
+                TypeInfoResolver = JsonSerializerOptions.Default.TypeInfoResolver,
+            }));
 });
 
 var app = builder.Build();
